@@ -1,0 +1,85 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  SAM Template for sound detection inference pipeline
+
+Parameters:
+  RekModelArn:
+    Type: String
+    Default: CHANGE_ME
+
+Globals:
+  Function:
+    Environment:
+      Variables:
+        POWERTOOLS_METRICS_NAMESPACE: "sound-detect-blog"
+        POWERTOOLS_SERVICE_NAME: "sound-detect-blog"
+    Tracing: Active
+  Api:
+    TracingEnabled: true
+
+Resources:
+  SourceBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "sound-detect-blog-${AWS::AccountId}"
+      AccessControl: "BucketOwnerFullControl"
+      VersioningConfiguration:
+        Status: Suspended
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: "aws:kms"
+
+  SoundFileDetectedFunction3:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Image
+      Timeout: 900
+      MemorySize: 8192
+      Environment:
+        Variables:
+          AUDIO_BUCKET: !Sub "sound-detect-blog-${AWS::AccountId}"
+          REK_MODEL_ARN: !Ref RekModelArn
+          SNS_TOPIC_ARN: !Ref SNSTopic
+          MIN_CONFIDENCE: 0.95
+          SAMPLE_LENGTH: 3
+          SAMPLE_OVERLAP: 0.25
+      Policies:
+        - S3ReadPolicy:
+            BucketName: !Sub "sound-detect-blog-${AWS::AccountId}"
+        - KMSDecryptPolicy:
+            KeyId: "aws/s3"
+        - KMSEncryptPolicy:
+            KeyId: "aws/s3"
+        - SNSPublishMessagePolicy:
+            TopicName: !GetAtt SNSTopic.TopicName
+        - Version: 2012-10-17
+          Statement:
+            - Sid: "rekognitionPolicies"
+              Effect: Allow
+              Action: rekognition:*
+              Resource: "*"
+      Events:
+        ProcessFileEvent:
+          Type: S3
+          Properties:
+            Bucket: !Ref SourceBucket
+            Events: s3:ObjectCreated:*
+    Metadata:
+      Dockerfile: Dockerfile
+      DockerContext: functions/find-sounds
+      DockerTag: python3.8-v1
+
+  SNSTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: SNSTopic
+
+Outputs:
+  SNSTopic:
+    Description: SNS topic
+    Value: !Ref SNSTopic
+  SourceBucket:
+    Description: S3 bucket
+    Value: !Ref SourceBucket

@@ -1,0 +1,6 @@
+boto3
+aws-lambda-powertools
+librosa
+numpy
+backoff
+matplotlib
