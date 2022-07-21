@@ -150,7 +150,7 @@ To submit a job to the inference system, simply drop a new audio file in the S3 
 To delete the sample application that you created, use the AWS CLI. Assuming you used your project name for the stack name, you can run the following:
 
 ```bash
-aws cloudformation delete-stack --stack-name sound-detect-blog
+sam delete --stack-name sound-detect-blog
 ```
 
 
