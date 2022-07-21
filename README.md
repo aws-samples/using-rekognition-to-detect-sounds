@@ -147,7 +147,7 @@ To submit a job to the inference system, simply drop a new audio file in the S3 
 
 ## Cleanup
 
-To delete the sample application that you created, use the AWS CLI. Assuming you used your project name for the stack name, you can run the following:
+To delete the sample application that you created, use the SAM CLI. Substitute your stack name as the parameter:
 
 ```bash
 sam delete --stack-name sound-detect-blog
