@@ -75,6 +75,7 @@ Resources:
     Type: AWS::SNS::Topic
     Properties:
       DisplayName: SNSTopic
+      KmsMasterKeyId: alias/aws/sns
 
 Outputs:
   SNSTopic:
