@@ -1,7 +1,12 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  SAM Template for sound detection inference pipeline
+  (uksb-1tsflhnbe/v1/backend) SAM Template for sound detection inference pipeline
+
+Metadata:
+    ID: uksb-1tsflhnbe
+    Version: 1
+    Stack: backend
 
 Parameters:
   RekModelArn:
